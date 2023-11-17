@@ -1,10 +1,12 @@
 package dao;
 
-import java.util.Currency;
+import entities.CurrencyValue;
+
 import java.util.List;
 
 public interface CurrencyDao {
-    public List<Currency> getAllCurrency();
-    public Currency getCurrencyById(int id);
-    public void createNewCurrency();
+    List<CurrencyValue> getAllCurrency();
+    CurrencyValue getCurrencyById(int id);
+    CurrencyValue getCurrencyByCode(String code);
+    void addNewCurrency(CurrencyValue currencyValue);
 }
