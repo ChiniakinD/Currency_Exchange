@@ -10,8 +10,19 @@
     <servlet-class>servlets.CurrencyServlet</servlet-class>
   </servlet>
 
+  <servlet>
+    <servlet-name>ExchangeRateServlet</servlet-name>
+    <servlet-class>servlets.ExchangeRateServlet</servlet-class>
+  </servlet>
+
   <servlet-mapping>
     <servlet-name>CurrencyServlet</servlet-name>
     <url-pattern>/currencies</url-pattern>
   </servlet-mapping>
+
+  <servlet-mapping>
+    <servlet-name>ExchangeRateServlet</servlet-name>
+    <url-pattern>/exchangeRate</url-pattern>
+  </servlet-mapping>
+
 </web-app>

@@ -9,6 +9,13 @@ public class CurrencyValue {
     public CurrencyValue() {
     }
 
+    public CurrencyValue(int id, String code, String fullName, String sign) {
+        this.id = id;
+        this.code = code;
+        this.fullName = fullName;
+        this.sign = sign;
+    }
+
     public void setId(int id) {
         this.id = id;
     }

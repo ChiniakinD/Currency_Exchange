@@ -3,19 +3,17 @@ package servlets;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dao.CurrencyDao;
-import daoImp.CurrencyDaoImp;
+import daoImp.CurrencyDaoImpl;
 import db.DataBaseConnection;
 import entities.CurrencyValue;
 
 import javax.servlet.ServletException;
-import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.Currency;
 import java.util.List;
 
 
@@ -26,7 +24,7 @@ public class CurrencyServlet extends HttpServlet {
     public void init() throws ServletException {
         try {
             Connection connection = DataBaseConnection.getConnection();
-            currencyDao = new CurrencyDaoImp(connection);
+            currencyDao = new CurrencyDaoImpl(connection);
 
         } catch (SQLException e) {
             throw new RuntimeException(e);

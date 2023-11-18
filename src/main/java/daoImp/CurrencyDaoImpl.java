@@ -11,10 +11,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
-public class CurrencyDaoImp implements CurrencyDao {
+public class CurrencyDaoImpl implements CurrencyDao {
     private Connection connection;
 
-    public CurrencyDaoImp(Connection connection) {
+    public CurrencyDaoImpl(Connection connection) {
         this.connection = connection;
         log.info("создано соединение с бд");
     }
@@ -40,8 +40,6 @@ public class CurrencyDaoImp implements CurrencyDao {
             throw new RuntimeException(e);
         }
         System.out.println("составлен список " + currencies);
-
-
         return currencies;
     }
 
