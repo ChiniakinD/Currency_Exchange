@@ -4,6 +4,7 @@ import dao.CurrencyDao;
 import db.DataBaseConnection;
 import entities.CurrencyValue;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.coyote.Response;
 
 
 import java.sql.*;
@@ -56,7 +57,6 @@ public class CurrencyDaoImpl implements CurrencyDao {
                 currencyValue.setFullName(resultSet.getString("fullName"));
                 currencyValue.setSign(resultSet.getString("sign"));
             }
-
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
@@ -68,30 +68,43 @@ public class CurrencyDaoImpl implements CurrencyDao {
         String sql = "Select * from Currency where code = ?";
         CurrencyValue currencyValue = new CurrencyValue();
         try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
-                preparedStatement.setString(1,code);
-                ResultSet resultSet = preparedStatement.executeQuery();
-                if (resultSet.next()) {
-                    currencyValue.setId(resultSet.getInt("id"));
-                    currencyValue.setCode(resultSet.getString("code"));
-                    currencyValue.setFullName(resultSet.getString("fullName"));
-                    currencyValue.setSign(resultSet.getString("sign"));
-                }
+            preparedStatement.setString(1, code);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            if (resultSet.next()) {
+                currencyValue.setId(resultSet.getInt("id"));
+                currencyValue.setCode(resultSet.getString("code"));
+                currencyValue.setFullName(resultSet.getString("fullName"));
+                currencyValue.setSign(resultSet.getString("sign"));
+            }
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
         return currencyValue;
     }
-        public void addNewCurrency(CurrencyValue currencyValue) {
-        String sql = "Insert Into Currency (code, fullName, sign) Values (?,?,?)";
-            try (Connection connection = DataBaseConnection.getConnection();
-                 PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
-                preparedStatement.setString(1, currencyValue.getCode());
-                preparedStatement.setString(2, currencyValue.getFullName());
-                preparedStatement.setString(3, currencyValue.getSign());
 
-                preparedStatement.executeUpdate();
-            } catch (SQLException e) {
-                throw new RuntimeException(e);
-            }
+    public void addNewCurrency(CurrencyValue currencyValue) {
+        if (isCurrencyExist(currencyValue.getFullName())){
+            return;
         }
+        String sql = "Insert Into Currency (code, fullName, sign) Values (?,?,?)";
+        try (Connection connection = DataBaseConnection.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+            preparedStatement.setString(1, currencyValue.getCode());
+            preparedStatement.setString(2, currencyValue.getFullName());
+            preparedStatement.setString(3, currencyValue.getSign());
+            preparedStatement.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+    private boolean isCurrencyExist(String fullName) {
+        String sql = "Select * From Currency Where FullName = ?";
+        try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+            preparedStatement.setString(1, fullName);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            return resultSet.next();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
 }
