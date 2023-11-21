@@ -7,6 +7,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.sql.SQLException;
 
 public class ExchangeRateServlet extends HttpServlet {
@@ -25,6 +26,15 @@ public class ExchangeRateServlet extends HttpServlet {
             } catch (SQLException e) {
                 throw new RuntimeException(e);
             }
+        }
+    }
+    @Override
+    public void doPut(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        String action = request.getParameter("action");
+        if (action.equals("update")) {
+            exchangeRateService.updateExchangeRate(request, response, request.getParameter("base"),
+                    request.getParameter("target"), new BigDecimal(request.getParameter("rate")));
         }
     }
 
