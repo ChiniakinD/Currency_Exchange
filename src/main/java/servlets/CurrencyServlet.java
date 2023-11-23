@@ -16,6 +16,22 @@ public class CurrencyServlet extends HttpServlet {
 
     public CurrencyServlet() throws SQLException {
     }
+        @Override
+    public void doGet(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        log.info("Вызван метод doGet по URI {}", request.getRequestURI());
+        String pathInfo = request.getPathInfo();
+        if (pathInfo == null || pathInfo.equals("/")) {
+            currencyService.getAllCurrencies(response);
+            log.info("Информация по запросу {}", pathInfo);
+            log.info("Запрос обработан");
+        } else {
+            String currencyCode = pathInfo.replace("/", "").toUpperCase();
+            currencyService.getCurrencyByCode(response,currencyCode);
+            log.info("Информация по запросу {}", pathInfo);
+            log.info("Запрос обработан");
+        }
+    }
 
     @Override
     public void doPost(HttpServletRequest request, HttpServletResponse response)
@@ -28,24 +44,9 @@ public class CurrencyServlet extends HttpServlet {
         }
     }
 
-    @Override
-    public void doGet(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-        log.info("Вызван метод doGet по URI {}", request.getRequestURI());
-        String action = request.getParameter("action");
-        if ("getAll".equals(action)) {
-            log.info("Вызван запрос для вывода всех валют");
-            currencyService.getAllCurrencies(response);
-        } else if ("getById".equals(action)) {
-            log.info("Вызван запрос для вывода валюты по id");
-            int currencyId = Integer.parseInt(request.getParameter("id"));
-            currencyService.getCurrencyById(request, response, currencyId);
-        } else if ("getByCode".equals(action)) {
-            log.info("Вызван запрос для вывода валюты по code");
-            String currencyCode = request.getParameter("code");
-            currencyService.getCurrencyByCode(response, currencyCode);
-        } else {
-            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Unknown action");
-        }
-    }
+
+
+
+
+
 }

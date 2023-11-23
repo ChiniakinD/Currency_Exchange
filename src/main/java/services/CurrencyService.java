@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import daoImp.CurrencyDaoImpl;
 import db.DataBaseConnection;
 import dto.CurrencyValueDto;
-import entities.CurrencyValue;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.servlet.ServletException;
