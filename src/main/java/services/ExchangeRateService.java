@@ -2,10 +2,12 @@ package services;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import converters.CurrencyValueConverter;
 import daoImp.CurrencyDaoImpl;
 import daoImp.ExchangeRateDaoImpl;
 import db.DataBaseConnection;
 import entities.ExchangeRate;
+import entities.ExchangeRateDto;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -25,11 +27,11 @@ public class ExchangeRateService {
     public void getExchangeRateByCode(HttpServletRequest request, HttpServletResponse response,
                                        String baseCurrencyCode, String targetCurrencyCode)
             throws ServletException, IOException {
-        ExchangeRate exchangeRate = exchangeRateDaoImpl.getExchangeRateByCode(baseCurrencyCode,targetCurrencyCode);
+        ExchangeRateDto exchangeRateDto = exchangeRateDaoImpl.getExchangeRateByCode(baseCurrencyCode,targetCurrencyCode);
         String currencyJson = null;
         try{
             ObjectMapper objectMapper= new ObjectMapper();
-            currencyJson = objectMapper.writeValueAsString(exchangeRate);
+            currencyJson = objectMapper.writeValueAsString(exchangeRateDto);
 
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
@@ -40,7 +42,7 @@ public class ExchangeRateService {
 
     public void getAllExchangeRates(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        List<ExchangeRate> exchangeRates = exchangeRateDaoImpl.getAllExchangeRates();
+        List<ExchangeRateDto> exchangeRates = exchangeRateDaoImpl.getAllExchangeRates();
         String currenciesJson = null;
         try {
             ObjectMapper objectMapper = new ObjectMapper();
@@ -57,8 +59,8 @@ public class ExchangeRateService {
         Connection connection = DataBaseConnection.getConnection();
         CurrencyDaoImpl currencyDaoImpl = new CurrencyDaoImpl(connection);
         ExchangeRate exchangeRate =new ExchangeRate();
-        exchangeRate.setBaseCurrency(currencyDaoImpl.getCurrencyByCode((request.getParameter("baseCurrency"))));
-        exchangeRate.setTargetCurrency(currencyDaoImpl.getCurrencyByCode((request.getParameter("targetCurrency"))));
+        exchangeRate.setBaseCurrency(CurrencyValueConverter.dtoToEntity(currencyDaoImpl.getCurrencyByCode((request.getParameter("baseCurrency")))));
+        exchangeRate.setTargetCurrency(CurrencyValueConverter.dtoToEntity(currencyDaoImpl.getCurrencyByCode((request.getParameter("targetCurrency")))));
         exchangeRate.setRate(new BigDecimal(request.getParameter("rate")));
         exchangeRateDaoImpl.addNewExchangeRate(exchangeRate);
     }

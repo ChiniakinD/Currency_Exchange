@@ -1,5 +1,8 @@
 package entities;
 
+import lombok.EqualsAndHashCode;
+
+
 public class CurrencyValue {
     private int id;
     private String code;

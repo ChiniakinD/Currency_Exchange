@@ -30,4 +30,4 @@ VALUES (1, 2, 0.67),  -- AUD к EUR
        (2, 4, 90.2),  -- EUR к RUB
        (3, 4, 75.3); -- USD к RUB
 
-SELECT * From currency;
+

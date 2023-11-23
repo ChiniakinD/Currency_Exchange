@@ -2,18 +2,19 @@ package services;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import dao.CurrencyDao;
 import daoImp.CurrencyDaoImpl;
 import db.DataBaseConnection;
+import dto.CurrencyValueDto;
 import entities.CurrencyValue;
+import lombok.extern.slf4j.Slf4j;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
+@Slf4j
 
 public class CurrencyService {
     private CurrencyDaoImpl currencyDaoImpl;
@@ -22,46 +23,48 @@ public class CurrencyService {
         this.currencyDaoImpl = new CurrencyDaoImpl(DataBaseConnection.getConnection());
     }
 
-    public void getAllCurrencies(HttpServletRequest request, HttpServletResponse response)
+    public void getAllCurrencies(HttpServletResponse response)
             throws ServletException, IOException {
-        System.out.println("начало get запроса");
-        List<CurrencyValue> currencies = currencyDaoImpl.getAllCurrency();
-        System.out.println("currencies = " + currencies);
+        log.info("Начало get запроса getAllCurrencies");
+        List<CurrencyValueDto> currencies = currencyDaoImpl.getAllCurrency();
+        log.info("Currencies = ", currencies);
         String currenciesJson = null;
-        System.out.println("Poka tyt 1");
         try {
             ObjectMapper objectMapper = new ObjectMapper();
             currenciesJson = objectMapper.writeValueAsString(currencies);
-            System.out.println("Poka tyt 2");
+            log.info("Запрос переведен в строку {}" , currenciesJson);
         } catch (JsonProcessingException e) {
-            System.out.println("Poka tyt error");
+            log.error("Error {}",e);
             throw new RuntimeException(e);
         }
-        System.out.println("map currencies " + currenciesJson);
+        log.info("Map currencies " + currenciesJson);
         response.setContentType("application/json; charset=UTF-8");
         response.getWriter().write(currenciesJson);
     }
     public void getCurrencyById(HttpServletRequest request, HttpServletResponse response, int id)
             throws ServletException, IOException {
-        CurrencyValue currencyValue = currencyDaoImpl.getCurrencyById(id);
+        log.info("Начало get запроса getCurrencyById");
+        CurrencyValueDto currencyValueDto = currencyDaoImpl.getCurrencyById(id);
         String currenciesJson = null;
         try {
             ObjectMapper objectMapper = new ObjectMapper();
-            currenciesJson = objectMapper.writeValueAsString(currencyValue);
+            currenciesJson = objectMapper.writeValueAsString(currencyValueDto);
+            log.info("Запрос переведен в строку {}" , currenciesJson);
         } catch (JsonProcessingException e) {
-            System.out.println("Poka tyt error");
+            log.error("Error {}",e);
             throw new RuntimeException(e);
         }
         response.setContentType("application/json; charset=UTF-8");
         response.getWriter().write(currenciesJson);
     }
-    public void getCurrencyByCode(HttpServletRequest request, HttpServletResponse response, String code)
+    public void getCurrencyByCode(HttpServletResponse response, String code)
             throws ServletException, IOException {
-        CurrencyValue currencyValue = currencyDaoImpl.getCurrencyByCode(code);
+        log.info("Начало get запроса getCurrencyByCode");
+        CurrencyValueDto currencyValueDto = currencyDaoImpl.getCurrencyByCode(code);
         String currenciesJson = null;
         try {
             ObjectMapper objectMapper = new ObjectMapper();
-            currenciesJson = objectMapper.writeValueAsString(currencyValue);
+            currenciesJson = objectMapper.writeValueAsString(currencyValueDto);
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
         }
@@ -71,10 +74,12 @@ public class CurrencyService {
 
     public void addNewCurrency(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        CurrencyValue currencyValue = new CurrencyValue();
-        currencyValue.setCode(request.getParameter("code"));
-        currencyValue.setFullName(request.getParameter("fullName"));
-        currencyValue.setSign(request.getParameter("sign"));
-        currencyDaoImpl.addNewCurrency(currencyValue);
+        log.info("Начало Post запроса addNewCurrency");
+        CurrencyValueDto currencyValueDto = new CurrencyValueDto();
+        currencyValueDto.setCode(request.getParameter("code"));
+        currencyValueDto.setFullName(request.getParameter("fullName"));
+        currencyValueDto.setSign(request.getParameter("sign"));
+        currencyDaoImpl.addNewCurrency(currencyValueDto);
+        log.info("Валюта {} добавлена", currencyValueDto);
     }
 }

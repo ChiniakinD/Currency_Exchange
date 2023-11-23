@@ -1,10 +1,10 @@
 package daoImp;
 
-import dao.CurrencyDao;
+import converters.CurrencyValueConverter;
 import db.DataBaseConnection;
+import dto.CurrencyValueDto;
 import entities.CurrencyValue;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.coyote.Response;
 
 
 import java.sql.*;
@@ -12,80 +12,82 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
-public class CurrencyDaoImpl implements CurrencyDao {
+public class CurrencyDaoImpl  {
     private Connection connection;
 
     public CurrencyDaoImpl(Connection connection) {
         this.connection = connection;
-        log.info("создано соединение с бд");
+        log.info("Создано соединение с бд");
+    }
+    private CurrencyValue mapCurrencyValue(ResultSet resultSet) {
+        try{
+            CurrencyValue currencyValue = new CurrencyValue();
+            currencyValue.setId(resultSet.getInt("id"));
+            currencyValue.setCode(resultSet.getString("code"));
+            currencyValue.setFullName(resultSet.getString("fullName"));
+            currencyValue.setSign(resultSet.getString("sign"));
+            return currencyValue;
+        } catch (SQLException e) {
+            log.error("Ошибка SQL запроса {}", e);
+            throw new RuntimeException(e);
+        }
     }
 
-    @Override
-    public List<CurrencyValue> getAllCurrency() {
-        List<CurrencyValue> currencies = new ArrayList<>();
+
+    public List<CurrencyValueDto> getAllCurrency() {
+        List<CurrencyValueDto> currenciesValueDtoList = new ArrayList<>();
         try (Statement statement = connection.createStatement()) {
             String sql = "SELECT * FROM currency";
-            System.out.println("выбраны данные " + sql);
+            log.info("Выбраны данные {}", sql);
             ResultSet resultSet = statement.executeQuery(sql);
-            System.out.println("создан объект " + resultSet);
+            log.info("Создан объект {}", resultSet);
             while (resultSet.next()) {
-                CurrencyValue currencyValue = new CurrencyValue();
-                currencyValue.setId(resultSet.getInt("id"));
-                currencyValue.setCode(resultSet.getString("code"));
-                currencyValue.setFullName(resultSet.getString("fullName"));
-                currencyValue.setSign(resultSet.getString("sign"));
-                System.out.println("добавлен объект " + currencyValue);
-                currencies.add(currencyValue);
+                currenciesValueDtoList.add(CurrencyValueConverter.entityToDto(mapCurrencyValue(resultSet)));
             }
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
-        System.out.println("составлен список " + currencies);
-        return currencies;
+        log.info("Составлен список {}", currenciesValueDtoList);
+        return currenciesValueDtoList;
     }
 
-    @Override
-    public CurrencyValue getCurrencyById(int id) {
+
+    public CurrencyValueDto getCurrencyById(int id) {
         String sql = "Select * from Currency where id = ?";
-        CurrencyValue currencyValue = new CurrencyValue();
+        CurrencyValueDto currencyValueDto = new CurrencyValueDto();
         try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
             preparedStatement.setInt(1, id);
             ResultSet resultSet = preparedStatement.executeQuery();
             if (resultSet.next()) {
-                currencyValue.setId(resultSet.getInt("id"));
-                currencyValue.setCode(resultSet.getString("code"));
-                currencyValue.setFullName(resultSet.getString("fullName"));
-                currencyValue.setSign(resultSet.getString("sign"));
+                currencyValueDto = CurrencyValueConverter.entityToDto(mapCurrencyValue(resultSet));
             }
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
-        return currencyValue;
+        return currencyValueDto;
     }
 
-    @Override
-    public CurrencyValue getCurrencyByCode(String code) {
+
+    public CurrencyValueDto getCurrencyByCode(String code) {
         String sql = "Select * from Currency where code = ?";
-        CurrencyValue currencyValue = new CurrencyValue();
+        CurrencyValueDto currencyValueDto = new CurrencyValueDto();
         try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
             preparedStatement.setString(1, code);
             ResultSet resultSet = preparedStatement.executeQuery();
             if (resultSet.next()) {
-                currencyValue.setId(resultSet.getInt("id"));
-                currencyValue.setCode(resultSet.getString("code"));
-                currencyValue.setFullName(resultSet.getString("fullName"));
-                currencyValue.setSign(resultSet.getString("sign"));
+                currencyValueDto = CurrencyValueConverter.entityToDto(mapCurrencyValue(resultSet));
             }
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
-        return currencyValue;
+        return currencyValueDto;
     }
 
-    public void addNewCurrency(CurrencyValue currencyValue) {
-        if (isCurrencyExist(currencyValue.getFullName())){
+    public void addNewCurrency(CurrencyValueDto currencyValueDto) {
+        if (isCurrencyExist(currencyValueDto.getFullName())){
             return;
         }
+        CurrencyValue currencyValue = CurrencyValueConverter.dtoToEntity(currencyValueDto);
         String sql = "Insert Into Currency (code, fullName, sign) Values (?,?,?)";
         try (Connection connection = DataBaseConnection.getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
